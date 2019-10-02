@@ -1,0 +1,108 @@
+service: inventory-events-database
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  profile: kanso
+  stage: local
+  region: us-west-2
+
+plugins:
+  - serverless-dynamodb-local
+  - serverless-plugin-dynamo-autoscaling
+
+custom:
+  dynamodb:
+    stages:
+      - local
+    start:
+      migrate: true
+      # docker port
+      port: 8000
+      # Starting dynamo in docker, we just want to migrate to create the table
+      noStart: true
+  autoscaling:
+    - table: InventoryEventsTable
+      read:
+        minimum: 5
+        maximum: 100
+        usage: 75
+      write:
+        minimum: 2
+        maximum: 10
+        usage: 75
+  stage: ${opt:stage, self:provider.stage}
+  region: ${opt:region, self:provider.region}
+  tableName: ${self:custom.stage}-inventory-events
+
+resources:
+  Resources: 
+    InventoryEventsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.tableName}
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: true
+        AttributeDefinitions:
+          - AttributeName: customerId
+            AttributeType: S
+          - AttributeName: commandId
+            AttributeType: S
+          # genEntityIdTime is used to get all events that occurred for a specific entity id sorted by time they occurred
+          - AttributeName: genEntityIdTime
+            AttributeType: S
+          # genEntityIdEventTypeTime is used to get all events of a specific type sorted by the time they occurred (will be used in the future to get the lastest snapshot)
+          - AttributeName: genEntityIdEventTypeTime
+            AttributeType: S
+          - AttributeName: type
+            AttributeType: S
+        KeySchema:
+          - AttributeName: customerId
+            KeyType: HASH
+          - AttributeName: commandId
+            KeyType: RANGE
+        LocalSecondaryIndexes:
+          - IndexName: sortedItems
+            KeySchema:
+              - AttributeName: customerId
+                KeyType: HASH
+              - AttributeName: genEntityIdTime
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: eventSortedItems
+            KeySchema:
+              - AttributeName: customerId
+                KeyType: HASH
+              - AttributeName: genEntityIdEventTypeTime
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: eventType
+            KeySchema:
+              - AttributeName: customerId
+                KeyType: HASH
+              - AttributeName: type
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: NEW_IMAGE
+  Outputs:
+    InventoryTableArn:
+      Value:
+        Fn::GetAtt:
+          - InventoryEventsTable
+          - Arn
+      Export:
+        Name: ${self:custom.stage}-InventoryTableArn
+    InventoryTableStreamArn:
+      Value:
+        Fn::GetAtt:
+          - InventoryEventsTable
+          - StreamArn
+      Export:
+        Name: ${self:custom.stage}-InventoryTableStreamArn

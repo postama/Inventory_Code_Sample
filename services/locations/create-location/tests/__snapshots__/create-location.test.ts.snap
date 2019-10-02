@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`create location command structure validator should pass with full structure 1`] = `
+Object {
+  "commandId": Any<String>,
+  "customerId": Any<String>,
+  "isActive": true,
+  "locationId": Any<String>,
+  "name": "abc",
+  "siteId": Any<String>,
+  "type": "CreateLocation",
+  "user": "abc",
+}
+`;
+
+exports[`create location integration should successfully create the location 1`] = `
+Object {
+  "created": Any<String>,
+  "isActive": true,
+  "name": "abc",
+  "siteId": "TESTER",
+}
+`;
+
+exports[`create location reducer should create a location from an event 1`] = `
+Object {
+  "created": Any<String>,
+  "isActive": true,
+  "name": "abc",
+  "siteId": "TESTER",
+}
+`;

@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`create inventory item command structure validator should pass with full structure 1`] = `
+Object {
+  "brand": "abc",
+  "commandId": Any<String>,
+  "costPerUnit": 123,
+  "customerId": Any<String>,
+  "group": "abc",
+  "identifier": "abc",
+  "isPreferred": true,
+  "itemId": Any<String>,
+  "name": "abc",
+  "siteId": Any<String>,
+  "supplier": "abc",
+  "type": "CreateItem",
+  "unitOfMeasurement": "abc",
+  "user": "abc",
+}
+`;
+
+exports[`create inventory item command structure validator should pass without optional fields 1`] = `
+Object {
+  "brand": "abc",
+  "commandId": Any<String>,
+  "costPerUnit": 123,
+  "customerId": Any<String>,
+  "group": "abc",
+  "identifier": "abc",
+  "isPreferred": true,
+  "itemId": Any<String>,
+  "name": "abc",
+  "siteId": Any<String>,
+  "supplier": undefined,
+  "type": "CreateItem",
+  "unitOfMeasurement": "abc",
+  "user": "abc",
+}
+`;
+
+exports[`create inventory item reducer should create an inventory item from an event 1`] = `
+Object {
+  "brand": "abc",
+  "costPerUnit": 123,
+  "created": Any<String>,
+  "group": "abc",
+  "identifier": "abc",
+  "isPreferred": true,
+  "locations": Object {},
+  "name": "abc",
+  "quantity": 0,
+  "supplier": "abc",
+  "unitOfMeasurement": "abc",
+}
+`;

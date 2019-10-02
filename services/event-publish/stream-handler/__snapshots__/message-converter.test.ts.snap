@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`message converter should create a sns event for one record 1`] = `
+Array [
+  Object {
+    "Message": "{\\"test\\":\\"test\\"}",
+    "MessageAttributes": Object {
+      "Type": Object {
+        "DataType": "String",
+        "StringValue": undefined,
+      },
+    },
+    "Subject": undefined,
+    "TopicArn": "test",
+  },
+]
+`;
+
+exports[`message converter should create an sns event for each record (2) 1`] = `
+Array [
+  Object {
+    "Message": "{\\"test\\":\\"test\\"}",
+    "MessageAttributes": Object {
+      "Type": Object {
+        "DataType": "String",
+        "StringValue": undefined,
+      },
+    },
+    "Subject": undefined,
+    "TopicArn": "test",
+  },
+  Object {
+    "Message": "{\\"test\\":\\"test2\\"}",
+    "MessageAttributes": Object {
+      "Type": Object {
+        "DataType": "String",
+        "StringValue": undefined,
+      },
+    },
+    "Subject": undefined,
+    "TopicArn": "test",
+  },
+]
+`;

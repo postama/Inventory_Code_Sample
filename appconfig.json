@@ -1,0 +1,36 @@
+{
+    "//": "For use with serverless local",
+    "local": {
+        "dynamoDB": {
+            "options": {
+                "endpoint": "http://localhost:8000",
+                "region": "localhost"
+            },
+            "tableName": "local-inventory-events"
+        }
+    },
+    "//": "For use with jest tests",
+    "test": {
+        "dynamoDB": {
+            "options": {
+                "endpoint": "http://localhost:8000",
+                "region": "localhost"
+            },
+            "tableName": "local-inventory-events"
+        }
+    },
+    "//": "For use with dev sls stage",
+    "dev": {
+        "dynamoDB": {
+            "options": {},
+            "tableName": "dev-inventory-events"
+        }
+    },
+    "//": "For use with prod sls stage",
+    "prod": {
+        "dynamoDB": {
+            "options": {},
+            "tableName": "prod-inventory-events"
+        }
+    }
+}

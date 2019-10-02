@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`inventory aggregate root getById should get an inventory item 1`] = `
+Object {
+  "brand": "abc",
+  "costPerUnit": 123,
+  "created": Any<String>,
+  "group": "abc",
+  "identifier": "abc",
+  "isPreferred": true,
+  "locations": Object {},
+  "name": "abc",
+  "quantity": 0,
+  "supplier": "abc",
+  "unitOfMeasurement": "abc",
+}
+`;

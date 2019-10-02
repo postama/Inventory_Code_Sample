@@ -1,0 +1,108 @@
+service: inventory-items
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  profile: kanso
+  stage: local
+  region: us-west-2
+  environment:
+    NODE_CONFIG_ENV: ${self:custom.stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+      Resource:
+        - 'Fn::ImportValue': ${self:custom.stage}-InventoryTableArn
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+      Resource: {"Fn::Join": ["", [{"Fn::ImportValue":"${self:custom.stage}-InventoryTableArn"}, "/index/*"]]}
+
+package:
+  individually: ${self:custom.packageIndividually.${self:custom.stage}, self:custom.packageIndividually.other}
+
+plugins:
+  - serverless-add-api-key
+  - serverless-webpack
+  - serverless-offline
+  - serverless-domain-manager
+
+custom:
+  apiKeys:
+    - name: inventory-key
+      value: ${ssm:/doorways/${self:custom.stage}/INVENTORY_API_KEY}
+  customDomain:
+    domainName: ${self:custom.domainPrefix.${self:custom.stage}, self:custom.domainPrefix.other}.doorways-services.net
+    certificateName: '*.doorways-services.net'
+    basePath: item
+  domainPrefix:
+    prod: inventory
+    other: ${self:custom.stage}-inventory
+  stage: ${opt:stage, self:provider.stage}
+  region: ${opt:region, self:provider.region}
+  packageIndividually:
+    local: false
+    other: true
+
+functions:
+  IssueItem:
+    handler: issue-item/issue-item.entry
+    events:
+      - http:
+          path: v1/{itemId}/command/issue
+          method: POST
+          private: true
+  CreateItem:
+    handler: create-item/create-item.entry
+    events:
+      - http:
+          path: v1
+          method: POST
+          private: true
+  EditItem: 
+    handler: edit-item/edit-item.entry
+    events:
+      - http:
+          path: v1/{itemId}
+          method: PUT
+          private: true
+  DeleteItem:
+    handler: delete-item/delete-item.entry
+    events:
+      - http:
+          path: v1/{itemId}
+          method: DELETE
+          private: true
+  AdjustItem:
+    handler: adjust-qty/adjust-qty.entry
+    events:
+      - http:
+          path: v1/{itemId}/command/adjust
+          method: POST
+          private: true
+  ReceiveItem:
+    handler: receive-item/receive-item.entry
+    events:
+      - http:
+          path: v1/{itemId}/command/receive
+          method: POST
+          private: true
+  DisposeItem:
+    handler: dispose-item/dispose-item.entry
+    events:
+      - http:
+          path: v1/{itemId}/command/dispose
+          method: POST
+          private: true
+  TransferItem:
+    handler: transfer-item/transfer-item.entry
+    events:
+      - http:
+          path: v1/{itemId}/command/transfer
+          method: POST
+          private: true

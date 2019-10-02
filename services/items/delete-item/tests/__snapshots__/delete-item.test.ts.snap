@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`delete inventory item delete event - integration should successfully remove the item 1`] = `
+Object {
+  "brand": "abc",
+  "costPerUnit": 123,
+  "created": Any<String>,
+  "deleted": Any<String>,
+  "group": "abc",
+  "identifier": "abc",
+  "isPreferred": true,
+  "locations": Object {},
+  "name": "abc",
+  "quantity": 0,
+  "supplier": "abc",
+  "unitOfMeasurement": "abc",
+}
+`;

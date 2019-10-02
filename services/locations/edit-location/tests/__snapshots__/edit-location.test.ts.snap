@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`edit location command structure validator should pass with full structure 1`] = `
+Object {
+  "commandId": Any<String>,
+  "customerId": Any<String>,
+  "isActive": true,
+  "locationId": Any<String>,
+  "name": "abc",
+  "siteId": Any<String>,
+  "type": "EditLocation",
+  "user": "abc",
+}
+`;

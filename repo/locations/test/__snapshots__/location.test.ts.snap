@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`location aggregate root getById should get a location 1`] = `
+Object {
+  "created": Any<String>,
+  "isActive": true,
+  "name": "abc",
+  "siteId": "TESTER",
+}
+`;

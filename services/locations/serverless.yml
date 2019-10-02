@@ -1,0 +1,66 @@
+service: inventory-locations
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  profile: kanso
+  stage: local
+  region: us-west-2
+  environment:
+    NODE_CONFIG_ENV: ${self:custom.stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+      Resource:
+        - 'Fn::ImportValue': ${self:custom.stage}-InventoryTableArn
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+      Resource: {"Fn::Join": ["", [{"Fn::ImportValue":"${self:custom.stage}-InventoryTableArn"}, "/index/*"]]}
+
+package:
+  individually: ${self:custom.packageIndividually.${self:custom.stage}, self:custom.packageIndividually.other}
+
+plugins:
+  - serverless-add-api-key
+  - serverless-webpack
+  - serverless-offline
+  - serverless-domain-manager
+
+custom:
+  apiKeys:
+    - name: inventory-key
+      value: ${ssm:/doorways/${self:custom.stage}/INVENTORY_API_KEY}
+  customDomain:
+    domainName: ${self:custom.domainPrefix.${self:custom.stage}, self:custom.domainPrefix.other}.doorways-services.net
+    certificateName: '*.doorways-services.net'
+    basePath: location
+  domainPrefix:
+    prod: inventory
+    other: ${self:custom.stage}-inventory
+  stage: ${opt:stage, self:provider.stage}
+  region: ${opt:region, self:provider.region}
+  packageIndividually:
+    local: false
+    other: true
+
+functions:
+  CreateLocation:
+    handler: create-location/create-location.entry
+    events:
+      - http:
+          path: v1
+          method: POST
+          private: true
+  EditLocation:
+    handler: edit-location/edit-location.entry
+    events:
+      - http:
+          path: v1/{locationId}
+          method: PUT
+          private: true

@@ -1,0 +1,61 @@
+service: inventory-events-publish
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  profile: kanso
+  stage: local
+  region: us-west-2
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - SNS:Publish
+      Resource: {"Fn::Join" : ["", ["arn:aws:sns:${self:custom.region}:", { "Ref" : "AWS::AccountId" }, ":${self:custom.inventoryEventsTopic}" ] ]}
+
+plugins:
+  - serverless-webpack
+  - serverless-plugin-offline-dynamodb-stream
+  - serverless-offline
+
+package:
+  individually: ${self:custom.packageIndividually.${self:custom.stage}, self:custom.packageIndividually.other}
+
+custom:
+  inventoryEventsTopic: "${self:service}-${self:custom.stage}"
+  stage: ${opt:stage, self:provider.stage}
+  region: ${opt:region, self:provider.region}
+  packageIndividually:
+    local: false
+    other: true
+  dynamodbStream:
+    host: localhost
+    port: 8000
+    streams:
+      - table: dev-inventory-events
+        functions:
+          - PublishItem
+
+functions:
+  PublishItem:
+    handler: stream-handler/publish.publishItem
+    events:
+      - stream:
+          type: dynamodb
+          batchSize: 1
+          startingPosition: LATEST
+          arn: {'Fn::ImportValue': "${self:custom.stage}-InventoryTableStreamArn"}
+    environment:
+      snsArn: { "Fn::Join" : ["", ["arn:aws:sns:${self:custom.region}:", { "Ref" : "AWS::AccountId" }, ":${self:custom.inventoryEventsTopic}" ] ]  }
+
+resources:
+  Resources:
+    InventoryEventsTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: 'Inventory Events'
+        TopicName: ${self:custom.inventoryEventsTopic}
+  Outputs:
+    InventoryEventsArn:
+      Value: { "Ref": InventoryEventsTopic }
+      Export:
+        Name: ${self:custom.stage}-InventoryEventsTopicArn
